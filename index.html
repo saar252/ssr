@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Menu Utama - Dunia Hewan</title>
+  <style>
+    body {
+      font-family: Comic Sans MS, cursive, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(-45deg, #ffecd2, #fcb69f, #a1c4fd, #c2e9fb);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      color: #2b7a78;
+      text-shadow: 2px 2px 5px white;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 18px;
+      color: #17252a;
+      margin-bottom: 20px;
+      text-shadow: 1px 1px 2px white;
+    }
+
+    button {
+      padding: 12px 30px;
+      margin-top: 20px;
+      font-size: 18px;
+      background-color: #3aafa9;
+      border: none;
+      color: white;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      transition: background 0.3s ease, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #2b7a78;
+      transform: scale(1.05);
+    }
+
+    img.animal-icon {
+      width: 120px;
+      margin: 10px;
+      animation: float 4s ease-in-out infinite;
+      max-width: 100%;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      p {
+        font-size: 16px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+      }
+
+      img.animal-icon {
+        width: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎮 Selamat Datang di Dunia Hewan! 🐾</h1>
+  <p>Tebak nama hewan dan suara hewan. Yuk mulai bermain!</p>
+
+  <!-- Gambar ikon hewan berbeda untuk setiap hewan -->
+  <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" class="animal-icon" alt="Kucing" />
+  <img src="https://cdn-icons-png.flaticon.com/512/616/616409.png" class="animal-icon" alt="Anjing" />
+  <img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" class="animal-icon" alt="Sapi" />
+
+  <button onclick="goToGame()">Pilih Game</button>
+
+  <!-- Audio Backsound -->
+  <audio id="backsound" src="backsound.mp3" autoplay loop></audio>
+
+  <script>
+    const backsound = document.getElementById("backsound");
+
+    // Pastikan backsound dilanjutkan dari posisi terakhir saat reload
+    window.addEventListener("DOMContentLoaded", () => {
+      const lastTime = localStorage.getItem("backsoundTime");
+      if (lastTime) {
+        backsound.currentTime = parseFloat(lastTime);
+      }
+      document.body.addEventListener("click", () => {
+        if (backsound.paused) {
+          backsound.play();
+        }
+      }, { once: true });
+    });
+
+    // Simpan waktu saat halaman akan ditinggalkan
+    window.addEventListener("beforeunload", () => {
+      localStorage.setItem("backsoundTime", backsound.currentTime);
+    });
+
+    function goToGame() {
+      localStorage.setItem("backsoundTime", backsound.currentTime);
+      location.href = 'Pilihgame.html';
+    }
+  </script>
+
+</body>
+</html>

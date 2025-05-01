@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Halaman Pilihan Game</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+      background-color: #f4e1d2;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      margin-top: 50px;
+      color: #ff6f61;
+      font-size: 40px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .button-container {
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 15px 30px;
+      margin: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      border-radius: 15px;
+      border: none;
+      background-color: #ffb347;
+      color: white;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+      transition: background-color 0.3s ease, transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #ff9f00;
+      transform: scale(1.1);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Ayo Pilih</h1>
+
+  <div class="button-container">
+    <button onclick="location.href='game.html'">Tebak Gambar Hewan 🖼️</button>
+    <button onclick="location.href='game2.html'">Tebak Suara Hewan 🔊</button>
+  </div>
+
+  <p id="result"></p>
+
+  <!-- Backsound -->
+  <audio id="backsound" src="backsound.mp3" autoplay loop hidden></audio>
+
+  <script>
+    const backsound = document.getElementById("backsound");
+    const playBtn = document.getElementById("playMusicBtn");
+  
+    playBtn.addEventListener("click", () => {
+      backsound.play();
+      localStorage.setItem("backsound", "on");
+      playBtn.style.display = "none"; // sembunyikan tombol setelah musik jalan
+    });
+  
+    // Jika sebelumnya musik sudah aktif, coba nyalakan otomatis
+    window.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("backsound") === "on") {
+        backsound.play().catch(() => {
+          // Autoplay gagal, tetap tampilkan tombol
+          playBtn.style.display = "block";
+        });
+      } else {
+        playBtn.style.display = "block";
+      }
+    });
+  </script>
+  
+
+</body>
+</html>

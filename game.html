@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Tebak Gambar Hewan</title>
+  <style>
+    body {
+      font-family: Comic Sans MS, cursive, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(-45deg, #89f7fe, #66a6ff, #ffd3a5, #ff758c);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1, h2, p {
+      color: #2b7a78;
+      text-shadow: 1px 1px 2px white;
+    }
+
+    img {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      border-radius: 20px;
+      border: 4px solid #3aafa9;
+      background: white;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .choices {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 30px;
+      margin: 10px;
+      border-radius: 10px;
+      border: none;
+      background-color: #3aafa9;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      background-color: #2b7a78;
+      transform: scale(1.05);
+    }
+
+    #feedback {
+      margin-top: 20px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #score {
+      margin-top: 30px;
+      font-size: 24px;
+      color: #17252a;
+    }
+
+    .page {
+      display: none;
+      padding-top: 50px;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .animal {
+      position: absolute;
+      width: 100px;
+      animation: floatAnimal 6s ease-in-out infinite;
+      z-index: 1;
+    }
+
+    .animal:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
+    .animal:nth-child(2) { top: 50%; left: 80%; animation-delay: 1s; }
+    .animal:nth-child(3) { top: 70%; left: 20%; animation-delay: 2s; }
+
+    @keyframes floatAnimal {
+      0%   { transform: translateY(0); }
+      50%  { transform: translateY(-20px); }
+      100% { transform: translateY(0); }
+    }
+
+    .bubble {
+      position: absolute;
+      bottom: -50px;
+      background-color: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      opacity: 0.6;
+      animation: rise 10s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes rise {
+      0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.6;
+      }
+      100% {
+        transform: translateY(-100vh) scale(1.5);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Gambar hiasan -->
+  <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" class="animal" alt="Kucing" />
+  <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" class="animal" alt="Anjing" />
+  <img src="https://cdn-icons-png.flaticon.com/512/616/616430.png" class="animal" alt="Sapi" />
+
+  <!-- Suara -->
+  <audio id="soundCorrect" src="benar.mp3"></audio>
+  <audio id="soundWrong" src="salah.mp3"></audio>
+
+  <!-- Halaman Game -->
+  <div id="game" class="page active">
+    <h1>🐾 Tebak Gambar Hewan 🐾</h1>
+    <img id="image" src="" alt="Gambar hewan">
+    <div class="choices" id="choices"></div>
+    <div id="feedback"></div>
+  </div>
+
+  <!-- Halaman Hasil -->
+  <div id="result" class="page">
+    <h2>🎉 Skor Akhir: <span id="finalScore"></span></h2>
+    <button onclick="startGame()">Main Lagi</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        img: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
+        answer: "Anjing",
+        choices: ["Kucing", "Anjing", "Sapi"]
+      },
+      {
+        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/320px-Cat03.jpg",
+        answer: "Kucing",
+        choices: ["Ayam", "Kucing", "Kelinci"]
+      },
+      {
+        img: "sapi-limosin.jpeg",
+        answer: "Sapi",
+        choices: ["Sapi", "Gajah", "Bebek"]
+      },
+      {
+        img: "kelinci.jpg",
+        answer: "Kelinci",
+        choices: ["Kelinci", "Ayam", "Kucing"]
+      },
+      {
+        img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/African_Bush_Elephant.jpg/640px-African_Bush_Elephant.jpg",
+        answer: "Gajah",
+        choices: ["Gajah", "Sapi", "Kuda"]
+      }
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    function showPage(id) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+    }
+
+    function startGame() {
+      current = 0;
+      score = 0;
+      showPage("game");
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      document.getElementById("feedback").textContent = "";
+      const q = questions[current];
+      document.getElementById("image").src = q.img;
+      const choicesDiv = document.getElementById("choices");
+      choicesDiv.innerHTML = "";
+      q.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.textContent = choice;
+        btn.onclick = () => checkAnswer(choice);
+        choicesDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(choice) {
+      const q = questions[current];
+      const feedback = document.getElementById("feedback");
+      const correctSound = document.getElementById("soundCorrect");
+      const wrongSound = document.getElementById("soundWrong");
+
+      if (choice === q.answer) {
+        feedback.textContent = "Benar! 🎉";
+        feedback.style.color = "green";
+        score++;
+        correctSound.play();
+      } else {
+        feedback.textContent = "Salah 😢";
+        feedback.style.color = "red";
+        wrongSound.play();
+      }
+
+      current++;
+      if (current < questions.length) {
+        setTimeout(loadQuestion, 1500);
+      } else {
+        setTimeout(showResult, 1500);
+      }
+    }
+
+    function showResult() {
+      document.getElementById("finalScore").textContent = `${score} dari ${questions.length}`;
+      showPage("result");
+    }
+
+    function createBubbles() {
+      for (let i = 0; i < 20; i++) {
+        const bubble = document.createElement("div");
+        const size = Math.random() * 40 + 10;
+        bubble.classList.add("bubble");
+        bubble.style.width = size + "px";
+        bubble.style.height = size + "px";
+        bubble.style.left = Math.random() * 100 + "vw";
+        bubble.style.animationDuration = (Math.random() * 10 + 5) + "s";
+        document.body.appendChild(bubble);
+      }
+    }
+
+    window.onload = () => {
+      createBubbles();
+      startGame(); // langsung mulai game saat halaman dimuat
+    };
+  </script>
+</body>
+</html>
